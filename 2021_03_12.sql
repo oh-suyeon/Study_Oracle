@@ -134,4 +134,4 @@ WHERE 2=1;
 ----날짜값 표기하기 (날짜 문자열을 날짜 값으로 변경하는 TO_DATE() 함수를 사용하기)
 SELECT empno, ename, hiredate
 FROM emp
-where hiredate >= TO_DATE('1981/03/01', 'YYYY/MM/DD');
+WHERE hiredate >= TO_DATE('1981/03/01', 'YYYY/MM/DD');
