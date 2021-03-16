@@ -198,7 +198,15 @@ WHERE job = 'SALESMAN'
     OR empno LIKE '78%'; -- 숫자에 문자열 비교를 썼는데 실행됨. 숫자를 자동으로 문자열로 형변환한 것임.
     
 -- 과제) 실습 where13 (12와 동일. LIKE 연산자 쓰지 말기)
+-- 1000번대만 검색되면 안 된다. 틀렸음!
 SELECT empno, ename, job, mgr, hiredate, sal, comm, deptno
 FROM emp
 WHERE job = 'SALESMAN' 
     OR empno BETWEEN 7800 AND 7899;
+-- 1000번대만 검색되면 안 된다. 100번대, 10번대도 검색되도록 한다.
+SELECT empno, ename, job, mgr, hiredate, sal, comm, deptno
+FROM emp
+WHERE job = 'SALESMAN' 
+    OR empno BETWEEN 7800 AND 7899
+    OR empno BETWEEN 780 AND 789
+    OR empno = 78; 
