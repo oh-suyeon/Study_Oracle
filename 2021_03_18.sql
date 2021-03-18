@@ -1,10 +1,19 @@
 SELECT ename, TO_CHAR(hiredate, 'YYYY/MM/DD HH24:mi:ss') hiredate,
-        MONTHS_BETWEEN(SYSDATE, hiredate) month_between,
+        MONTHS_BETWEEN(SYSDATE, hiredate) months_between,
         ADD_MONTHS(SYSDATE, 5) add_months,
         ADD_MONTHS((TO_DATE('2021-02-15' , 'YYYY-MM-DD'), 5)) add_months2,
-        NEXT_DAY(SYSDATE, 1) next_day, --18일 이후에 등장하는 일요일은?. 많이 활용된다.
+        NEXT_DAY(SYSDATE, 1) next_day, --다음주 일요일이 며칠? 18일 이후에 등장하는 일요일은?. 많이 활용된다.
         LAST_DAY(SYSDATE) last_day,
         TO_DATE(TO_CHAR(SYSDATE, 'YYYYMM') || '01', 'YYYYMMDD') first_day
+FROM emp;
+
+SELECT ename, To_CHAR(hiredate, 'YYYYMMDD HH24:mi:ss') hiredate,
+        TRUNC(MONTHS_BETWEEN(SYSDATE, hiredate), 2) months_between,
+        ADD_MONTHS(SYSDATE, 5) add_months,
+        ADD_MONTHS(TO_DATE('19951223', 'YYYYMMDD'), 15) add_months2,
+        NEXT_DAY(SYSDATE, 1) next_day,
+        LAST_DAY(SYSDATE) last_day,
+        TO_DATE(TO_CHAR(SYSDATE,'YYYYMM') || 01, 'YYYYMMDD') first_day
 FROM emp;
 
 
@@ -14,12 +23,16 @@ SELECT TO_DATE('2021' || '0101', 'YYYYMMDD') -- 월,일 값까지 강제 결합.
 FROM dual;
 
 -- 실습 fn3
--- 마지막 일자 구하기 = 월에 있는 일 수 구하기
+-- 마지막 일자 구하기 = 월에 있는 일 수 구하기 (내가 궁금한 년도 월의 마지막 날은 언제일까?)
 SELECT :yyyymm, TO_CHAR(LAST_DAY(TO_DATE(:yyyymm, 'yyyymm')), 'dd') DT 
+FROM dual;
+
+SELECT :yyyymm, TO_CHAR(LAST_DAY(TO_DATE(:yyyymm, 'yyyymm')), 'dd') DT
 FROM dual;
 
 -- 묵시적 형변환
 EXPLAIN PLAN FOR
+
 SELECT *
 FROM emp
 WHERE empno = '7369'; -- 변환되는 건 좌변일까 우변일까? 근데 좌변이 바뀌면 안된다고 했잖아. 
@@ -31,6 +44,10 @@ WHERE TO_CHAR(empno) = '7369';
 
 SELECT ename, sal, TO_CHAR(sal, 'L0009,999.00') 
 FROM emp;
+
+SELECT ename, sal, TO_CHAR(sal, '$999999999.000')
+FROM emp;
+
 -- 헷갈리면 9를 많이 넣기. 근데 많이 안 쓴다. 자바에서 이런 기능해주는 모듈이 있다. 보통 데이터 갖고 올 때는 원본 가지고 오고 화면 보여줄 때만 전환을 한다. 사실 DATE도 비슷한데 이건 형변환을 잘 알아야 한다. where절 조건 쓸 때 필요하니까. 
 
 -- NULL 처리 함수
@@ -44,6 +61,9 @@ SELECT empno, comm, NVL(comm, 0)
 FROM emp;
 
 SELECT empno, sal, comm, sal+comm -- 문제가 생긴다. 직원들이 총 얼마를 버는지 알고 싶은데.
+FROM emp;
+
+SELECT empno, sal, comm, sal + NVL(comm, 0)
 FROM emp;
 
 SELECT empno, sal, comm, sal + NVL(comm, 0) 
@@ -64,6 +84,12 @@ else
 SELECT empno, sal, comm, NVL2(comm, sal+comm, sal) -- 다른 방법 동이한 값
 FROM emp;
 
+sal + comm / NVL2(x, x, x)
+SELECT comm, sal, NVL2(comm, sal + comm, sal) 
+FROM emp;
+
+
+
 --3. NULLIF(ex1, ex2) 정말 안 쓴다. null을 만들면 문제가 생겨서.
 if(ex1 == ex2)
     sysout(null)
@@ -71,6 +97,9 @@ else
     sysout(ex1)
     
 SELECT empno, sal, NULLIF(sal, 1250) -- 1250 급여받으면 null이 된다.
+FROM emp;
+
+SELECT job, empno, sal, NULLIF(sal, 3000)
 FROM emp;
 
 COALESCE(ex1...) -- 가변인자. 인자 개수가 정해지지 않았다. 무한대. 인자들중에 가장 먼저 나오는 null이 아닌 인자를 반환.
@@ -84,7 +113,7 @@ if(ex2 != null)
 else
     COALESCE(ex3....); -- 재기 함수. 자기가 자기를 호출한다. 
     
-SELECT empno, sal, comm, COALESCE()
+SELECT empno, sal, comm, COALESCE(mgr)
 FROM emp;
 
 -- fn4.
@@ -179,7 +208,7 @@ GROUP BY deptno, empno;
 SELECT deptno, COUNT(*), MAX(sal), MIN(sal), ROUND(AVG(sal), 2), SUM(sal) -- GROUP BY를 안 하면 전체 행을 하나의 행으로 그룹핑한 상태. 
 FROM emp;                                             -- 이것도 동일한 에러. 전체 테이블이 하나의 행이 된 상태이기 때문. 
 
-SELECT deptno, 'TEST', 100, COUNT(*), MAX(sal), MIN(sal), ROUND(AVG(sal), 2), SUM(sal)  --고정된 상수는 동일한 하나의 값이기 때문에 에러 없이 출력된다.
+SELECT 'TEST', 100, COUNT(*), MAX(sal), MIN(sal), ROUND(AVG(sal), 2), SUM(sal)  --고정된 상수는 동일한 하나의 값이기 때문에 에러 없이 출력된다.
 FROM emp;
 
 
@@ -194,6 +223,7 @@ FROM emp
 WHERE COUNT(*) >=4  -- 오류가 난다. 그룹함수에 대한 조건은 where가 아니라 having에 써야 한다. 
 GROUP BY deptno;
 
+SELECT MAX(sal)
 FROM emp
 GROUP BY deptno;
 HAVING COUNT(*) >= 4;
