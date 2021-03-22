@@ -120,7 +120,7 @@ SELECT *
 FROM buyprod
 WHERE buy_date = TO_DATE('2005/01/25', 'YYYY/MM/DD');
 
-모든 제품 다 보여주고, 실제 구매가 있을 때는구매수량을 조회, 없을 경우 null
+모든 제품 다 보여주고, 실제 구매가 잇을 때는구매수량을 조회, 없을 경우 null
 
 SELECT *
 FROM buyprod
