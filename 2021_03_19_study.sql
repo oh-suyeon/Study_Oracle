@@ -18,3 +18,11 @@ SELECT p.prod_id, p.prod_name, b.buyer_name
 FROM prod p, buyer b
 WHERE p.prod_buyer = b.buyer_id AND b.buyer_name LIKE '%삼성전자%';
 
+SELECT e.empno, e.ename, m.empno, m.ename
+FROM emp e, emp m
+WHERE e.mgr = m.empno;
+
+SELECT *
+FROM emp, dept
+WHERE emp.deptno != dept.deptno
+ORDER BY emp.ename;
