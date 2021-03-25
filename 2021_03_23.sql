@@ -8,6 +8,12 @@ SELECT TO_DATE(:yyyymmdd, 'YYYYMMDD'), b.buy_prod, p.prod_id, p.prod_name, NVL(b
 FROM buyprod b, prod p
 WHERE p.prod_id = b.buy_prod(+) AND buy_date(+) = TO_DATE(:yyyymmdd, 'YYYYMMDD');
 
+SELECT TO_DATE(:yyyymmdd, 'yyyymmdd'), b.buy_date, p.prod_id, p.prod_name, NVL(b.buy_qty, 0)
+FROM prod p, buyprod b
+WHERE p.prod_id = b.buy_prod(+)
+      AND TO_DATE(:yyyymmdd, 'yyyymmdd') = b.buy_date(+);
+
+
 --outerjoin4 :먹지 않는 제품도 조회되도록 기본은 pid, pnm
 SELECT *
 FROM cycle;
@@ -19,6 +25,17 @@ FROM cycle c, product p
 WHERE p.pid = c.pid(+) AND 
 c.cid(+) = :cid;
 
+
+    
+SELECT :cid cid, cu.cnm, p.*, NVL(c.day, 0) day, NVL(c.cnt, 0) cnt 
+FROM cycle c, product p, customer cu
+WHERE p.pid = c.pid(+) 
+  AND c.cid(+) = :cid
+  AND :cid = cu.cid;
+
+
+
+
 SELECT product.*, cycle.cid, cycle.day, cycle.cnt 
 FROM product LEFT OUTER JOIN cycle ON (product.pid = cycle.pid AND cid = 1);
 
@@ -26,11 +43,24 @@ SELECT product.*, :cid, NVL(cycle.day, 0) day, NVL(cycle.cnt, 0) cnt
 FROM product LEFT OUTER JOIN cycle ON (product.pid = cycle.pid AND cid = :cid); -- 바인딩 변수로 처리하는 게 좋다. 
 
 -- outerjoin5 : 과제 :  4에 고객(customer) 이름 컬럼 추가하기 
-SELECT p.*, :cid, cu.cnm, NVL(c.day, 0) day, NVL(c.cnt, 0) cnt 
+SELECT :cid, cu.cnm, p.*, NVL(c.day, 0) day, NVL(c.cnt, 0) cnt 
 FROM cycle c, product p, customer cu
 WHERE p.pid = c.pid(+) AND 
-c.cid(+) = :cid
+c.cid = :cid AND
+c.cid = :cid
 ORDER BY cu.cnm;
+
+SELECT *
+FROM customer;
+
+SELECT cycle.cid, customer.cnm, cycle.pid, product.pnm, cycle.day, cycle.cnt
+FROM cycle, customer, product
+WHERE cycle.cid(+) = customer.cid
+  AND cycle.pid = product.pid
+  AND cycle.cid(+) = :cid;
+
+
+    
 
 -- CROSS JOIN
 SELECT *

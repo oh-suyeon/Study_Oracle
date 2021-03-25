@@ -178,12 +178,11 @@ WHERE e.sal >= (SELECT AVG(sal) avg_sal
                 FROM emp a
                WHERE a.deptno = e.deptno); -- 에러! 메인은 서브플롯의 컬럼을 가져올 수 없다. 논리적으로 생각 (FROM 절에 없으니까.)
 
-SELECT empno, ename, sal, deptno, a.avg_sal,
-    (SELECT AVG(sal) avg_sal
-                FROM emp a
-               WHERE a.deptno = e.deptno)
+SELECT empno, ename, sal, deptno, (SELECT AVG(sal) 
+                                    FROM emp a
+                                    WHERE a.deptno = e.deptno)
 FROM emp e
-WHERE e.sal >= (SELECT AVG(sal) avg_sal
+WHERE e.sal >= (SELECT AVG(sal) 
                 FROM emp a
                WHERE a.deptno = e.deptno); -- 되긴하는데 비효율적. 그래서 JOIN을 쓴다. 
 
@@ -210,8 +209,11 @@ SELECT *
 FROM product
 WHERE pid NOT IN (SELECT pid
                     FROM cycle
-                    WHERE cid = 1);
+                    WHERE cycle.cid = 1);
 
 1번 고객이 먹는 음료
 SELECT pnm
 FROM cycle;
+
+SELECT *
+FROM product;
