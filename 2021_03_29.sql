@@ -43,7 +43,7 @@ emp (4)
 3. idx 02
 4. idx 04
 
-dept (4)
+dept (2)
 1. table full access
 2. idx 01
 
@@ -103,34 +103,36 @@ CONNECT BY LEVEL <= 10;
 SELECT TO_CHAR(LAST_DAY(TO_DATE(:YYYYMM, 'YYYYMM')), 'DD')
 FROM dual;
 
-SELECT TO_DATE(:YYYYMM, 'YYYYMM') + (LEVEL - 1) dt
+SELECT TO_DATE(:YYYYMM, 'YYYYMM') + (LEVEL -1) dt
 FROM dual 
 CONNECT BY LEVEL <= TO_CHAR(LAST_DAY(TO_DATE(:YYYYMM, 'YYYYMM')), 'DD'); 
+
 
 SELECT dt, d
 FROM        --> 쿼리를 단순화 시키는 인라인뷰
 (SELECT TO_DATE(:YYYYMM, 'YYYYMM') + (LEVEL - 1) dt,
-       TO_CHAR(TO_DATE(:YYYYMM, 'YYYYMM') + (LEVEL - 1), 'D') d, /*
+       TO_CHAR(TO_DATE(:YYYYMM, 'YYYYMM') + (LEVEL - 1), 'D') d /*
        TO_CHAR(TO_DATE(:YYYYMM, 'YYYYMM') + (LEVEL - 1), 'IW') iw */
 FROM dual 
 CONNECT BY LEVEL <= TO_CHAR(LAST_DAY(TO_DATE(:YYYYMM, 'YYYYMM')), 'DD')); 
 
-SELECT dt, d, 일요일이면 dt 아니면 null, 월요일이면 dt 아니면 null
+
+SELECT dt, d, /*일요일이면 dt 아니면 null, 월요일이면 dt 아니면 null*/
               DECODE(d, 1, dt) sun, DECODE(d, 2, dt) mon,
-              화요일이면 dt 아니면 null, 수요일이면 dt 아니면 null
+              /*화요일이면 dt 아니면 null, 수요일이면 dt 아니면 null*/
               DECODE(d, 3, dt) tue, DECODE(d, 4, dt) wen,
-              목요일이면 dt 아니면 null, 금요일이면 dt 아니면 null
+              /*목요일이면 dt 아니면 null, 금요일이면 dt 아니면 null*/
               DECODE(d, 5, dt) thu, DECODE(d, 6, dt) fri,
-              토요일이면 dt 아니면 null
+              /*토요일이면 dt 아니면 null*/
               DECODE(d, 7, dt) sat
 FROM        
 (SELECT TO_DATE(:YYYYMM, 'YYYYMM') + (LEVEL - 1) dt,
-       TO_CHAR(TO_DATE(:YYYYMM, 'YYYYMM') + (LEVEL - 1), 'D') d, /*
+       TO_CHAR(TO_DATE(:YYYYMM, 'YYYYMM') + (LEVEL - 1), 'D') d /*
        TO_CHAR(TO_DATE(:YYYYMM, 'YYYYMM') + (LEVEL - 1), 'IW') iw */
 FROM dual 
 CONNECT BY LEVEL <= TO_CHAR(LAST_DAY(TO_DATE(:YYYYMM, 'YYYYMM')), 'DD'));
 
-
+------ 여기서부터! GROUP BY 기준을 IW가 아니라 LEVEL로 내가 직접 지정해줘야 할 것 같다. 계층으로..? 
 
 SELECT iw, 
               MIN(DECODE(d, 1, dt)) sun, MIN(DECODE(d, 2, dt)) mon,  --> 오라클은 min을 권장한다. null처리 함수는 가능할까?
@@ -244,9 +246,12 @@ START WITH s_id = '0'
 CONNECT BY PRIOR s_id = ps_id;
 
 
-DESC h_sum; -- id가 문자열이네  -- '01'은 숫자가 아니다. 앞에 0이 있을 필요가 없으니까 숫자라면. 
+DESC h_sum; -- id가 문자열이네  --  
 만약 데이터베이스 컬럼을 숫자로 바꿨다면... 값을 변형한 거니까 인덱스를 쓰지 못한다. 좌측을 가공하면 안 된다. 칠거지악.
 ---
+
+
+
 SELECT DECODE(d, 1, iw + 1, iw),           
               MIN(DECODE(d, 1, dt)) sun, MIN(DECODE(d, 2, dt)) mon,  
               MIN(DECODE(d, 3, dt)) tue, MIN(DECODE(d, 4, dt)) wen,
@@ -260,3 +265,5 @@ FROM dual
 CONNECT BY LEVEL <= TO_CHAR(LAST_DAY(TO_DATE(:YYYYMM, 'YYYYMM')), 'DD'))
 GROUP BY DECODE(d, 1, iw + 1, iw)     
 ORDER BY DECODE(d, 1, iw + 1, iw);
+
+
