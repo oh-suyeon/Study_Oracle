@@ -21,12 +21,12 @@ WHERE emp.empno = cut.empno
 START WITH emp.mgr IS NULL
 CONNECT BY PRIOR emp.empno = emp.mgr;
 
-SELECT c.cut, INSTR(c.cut, '~') f1,
-        SUBSTR(c.cut, 0, INSTR(c.cut, '~') - 1) f2,
-        INSTR(c.cut, '~', 1, 2) f3,
-        SUBSTR(c.cut, INSTR(c.cut, '~') + 1) f4
-FROM dual, (SELECT 'KING~JONES~SCOTT~ADAMS' cut
-            FROM dual) c;
+SELECT c.cut, 
+        SUBSTR(c.cut, 0, INSTR(c.cut, '~') - 1) c1,
+        SUBSTR(c.cut, INSTR(c.cut, '~') + 1, (INSTR(c.cut, '~', 1, 2) - 1) - INSTR(c.cut, '~')) c2
+FROM dual, 
+    (SELECT 'KING~JONES~SCOTT~ADAMS' cut
+     FROM dual) c;
             
             
 SELECT empno, LPAD(' ', (LEVEL -1) * 4) || ename ename, CONNECT_BY_ISLEAF isleaf 
