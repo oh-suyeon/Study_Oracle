@@ -80,10 +80,10 @@ FROM
 
 -- NULL 값이 나오는 행을 없애줘야 한다. 
 -- 그러면 일주일 단위로 묶어 그룹을 만들어준 다음에, 각 요일 별로 그룹 함수 MIN/MAX를 써서 값이 있는 날만 가져와야 한다. 
+-- '진짜' 일주일 씩 묶을 수 있는 공통된 값은 각 일자에 요일 값(d)을 뺀 값이다. 그 값은 한 주에 속하는 일자들이 공유한다... 일요일을 기준으로한 계산 법이다. 
 
 
-SELECT TO_CHAR(base.dt, 'w'),
-
+SELECT 
        MIN(DECODE(base.wd, 1, base.dt)) sun,
        MIN(DECODE(base.wd, 2, base.dt)) mon,
        MIN(DECODE(base.wd, 3, base.dt)) tue,
@@ -96,9 +96,7 @@ FROM
             TO_CHAR((TO_DATE(:yyyymm, 'yyyymm') + (LEVEL - 1)), 'd') wd
     FROM dual
     CONNECT BY LEVEL <= TO_CHAR(LAST_DAY(TO_DATE(:yyyymm, 'yyyymm')), 'dd')) base
-GROUP BY TO_CHAR(base.dt, 'w')
-ORDER BY TO_CHAR(base.dt, 'w');
-
-
+GROUP BY TO_CHAR(base.dt, 'dd') - base.wd
+ORDER BY TO_CHAR(base.dt, 'dd') - base.wd;
 
 
