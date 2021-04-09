@@ -218,7 +218,7 @@ END;
 -- ?? 2005년도 구매금액이 없는 회원 조회 쿼리 중 WHERE 절에 SUBSTR(c.cart_no, 1, 4) = '2005' 쓸 수 없다. 
 --    구매 기록이 없는 회원은 cart_no가 없기 때문에, 아무런 결과도 나오지 않는다. 
 --    cart 테이블이 2005년도 뿐 아니라 여러 년도의 구매 기록을 저장하고 있다면, 
---    어떻게 2005년에 구매 기록이 없는 회원만 조회할 수 있지?
+--    어떻게 2005년에 구매 기록이 없는 회원만 조회할 수 있지? 차집합으로 전체 회원 - 2005년도 구매 기록 있는 회원?
 
 -- 구매 기록이 없는 회원 조회 
 SELECT m.mem_id, SUM(c.cart_qty)
@@ -257,3 +257,44 @@ BEGIN
         proc_mem_delete(rec5.mid);
     END LOOP;
 END;
+------------------------- (선생님 답안)
+-- 프로시저 : 입력 받은 회원번호로 해당 회원 삭제여부 컬럼값 변경
+CREATE OR REPLACE PROCEDURE proc_mem_update(
+    p_mid   IN member.mem_id%TYPE)
+IS
+BEGIN
+    UPDATE member
+        SET mem_delete = 'Y'
+    WHERE mem_id = p_mid;   
+    COMMIT;
+END;
+
+-- 구매기록 없는 회원
+-- 2005년에 구매 사실이 있는 회원 아이디와 일치하지 않는 회원
+SELECT mem_id
+FROM member
+WHERE mem_id NOT IN (SELECT cart_member 
+                     FROM cart
+                     WHERE cart_no LIKE '2005%');
+
+-- 프로시저 실행 (FOR문 & 커서) 
+DECLARE
+BEGIN
+    FOR rec_mid IN (SELECT mem_id
+                 FROM member
+                 WHERE mem_id NOT IN (SELECT cart_member 
+                                      FROM cart
+                                      WHERE cart_no LIKE '2005%'))
+    LOOP
+        proc_mem_update(rec_mid.mem_id);
+    END LOOP;
+END;
+
+SELECT *
+FROM member;
+
+
+
+
+
+
