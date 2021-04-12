@@ -11,10 +11,15 @@ CREATE TABLE tb_jdbc_board(
     user_id     VARCHAR2(50),
     reg_date    DATE,
     CONSTRAINT pk_jdbc_board PRIMARY KEY(board_no));
+    
+-- 비밀번호 컬럼 추가
+ALTER TABLE tb_jdbc_board
+    ADD password VARCHAR2(10) DEFAULT '0000' NOT NULL;
 
 -- 테이블 확인
 SELECT *
-FROM tb_jdbc_board;
+FROM tb_jdbc_board
+ORDER BY board_no;
 
 -- 테이블 행 삭제
 DELETE FROM tb_jdbc_board;
@@ -29,3 +34,16 @@ DROP SEQUENCE sq_board_no;
 
 -- 커밋
 commit;
+
+-- 기본 행 삽입
+INSERT INTO tb_jdbc_board 
+    VALUES (sq_board_no.NEXTVAL, '제목1', '내용1', '오수연', SYSDATE, '0000');
+    
+INSERT INTO tb_jdbc_board 
+    VALUES (sq_board_no.NEXTVAL, '제목2', '내용2', '오수연', SYSDATE, '0000');
+    
+INSERT INTO tb_jdbc_board 
+    VALUES (sq_board_no.NEXTVAL, '제목3', '내용3', '오수연', SYSDATE, '0000');
+    
+INSERT INTO tb_jdbc_board 
+    VALUES (sq_board_no.NEXTVAL, '제목4', '내용4', '오수연', SYSDATE, '0000');
