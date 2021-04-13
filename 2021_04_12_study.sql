@@ -85,7 +85,7 @@
         v_prod := :new.cart_prod;
     ELSIF UPDATING THEN
         v_qty := :new.cart_qty - :old.cart_qty;
-        v_prod := :old.cart_prod;   -- (??) OLD, NEW 결과는 똑같다. (있는 상품 정보를 수정하는 거니까 OLD가 맞지 않나?)
+        v_prod := :old.cart_prod;   -- (??) OLD, NEW 결과는 똑같다. (있는 상품 정보를 수정하는 거니까 OLD가 맞다고 생각했다)
     ELSE 
         v_qty := -(:old.cart_qty);
         v_prod := :old.cart_prod;
