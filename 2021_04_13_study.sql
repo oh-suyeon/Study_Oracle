@@ -11,6 +11,8 @@ GROUP BY b.buyer_id, b.buyer_name
 HAVING SUM(bp.buy_cost * bp.buy_qty) >= 5000000
 ORDER BY 1;
       
+
+      
 -- 문제2 ) 사원 테이블(EMPLOYEES)에서 부서(department_id) 별 평균 급여(salary)보다 급여를 많이 받는 직원employee_id 수를 부서별로 조회
 -- 부서코드(e.department_id), 부서명(departments.department_name), 평균급여(AVG(salary)), 인원(COUNT(*))
 
@@ -20,20 +22,43 @@ WHERE e.department_id = d.department_id
 GROUP BY e.department_id, d.department_name
 ORDER BY 1;
 
-SELECT a.부서코드, a.부서명, a.평균급여, COUNT(*)              -- 직원이 하나 뿐인 부서, 부서에 속하지 않은 직원 데이터 4건이 누락된다. 
+SELECT a.부서코드, a.부서명, a.평균급여, COUNT(*) cnt           
 FROM employees ep, 
      (SELECT e.department_id 부서코드, d.department_name 부서명, ROUND(AVG(e.salary)) 평균급여
       FROM employees e, departments d
       WHERE e.department_id = d.department_id 
       GROUP BY e.department_id, d.department_name) a
 WHERE ep.department_id = a.부서코드 AND
-      ep.salary > a.평균급여
+      ep.salary >= a.평균급여
 GROUP BY a.부서코드, a.부서명, a.평균급여
 ORDER BY 1;
 
 SELECT department_id, COUNT(*)
 FROM employees
 GROUP BY department_id;
+
+-- 풀이
+
+SELECT department_id, ROUND(AVG(salary)) asal
+FROM employees
+GROUP BY department_id;
+
+SELECT b.department_id, c.department_name, a.asal, COUNT(*) cnt
+FROM employees b, (SELECT department_id, ROUND(AVG(salary)) asal
+                   FROM employees
+                   GROUP BY department_id) a, departments c
+WHERE a.department_id = b.department_id AND
+      b.department_id = c.department_id AND
+      b.salary >= a.asal
+GROUP BY b.department_id, c.department_name, a.asal
+ORDER BY 1;
+
+
+
+
+
+
+
 
 
 --------------------------------------

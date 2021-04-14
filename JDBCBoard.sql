@@ -47,3 +47,31 @@ INSERT INTO tb_jdbc_board
     
 INSERT INTO tb_jdbc_board 
     VALUES (sq_board_no.NEXTVAL, '제목4', '내용4', '오수연', SYSDATE, '0000');
+
+
+
+-- 테이블 생성
+CREATE TABLE tb_jdbc_user(
+    user_id    VARCHAR2(50),
+    password   VARCHAR2(200),
+    user_name  VARCHAR2(500));
+    
+DROP TABLE tb_jdbc_user;
+
+
+
+
+
+
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
